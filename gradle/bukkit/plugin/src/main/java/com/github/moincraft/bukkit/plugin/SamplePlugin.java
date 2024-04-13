@@ -24,6 +24,11 @@ import org.bukkit.plugin.java.JavaPlugin;
                         name = "sample",
                         description = "A sample command",
                         usage = "/sample [player]"
+                ),
+                @Command(
+                        name = "createservice",
+                        description = "Creates a new service in CloudNet",
+                        usage = "/createservice <task>"
                 )
         }
 )
@@ -44,7 +49,8 @@ public class SamplePlugin implements PlatformEntrypoint {
     // Methods annotated with @Inject will be called after the plugin has been enabled
     @Inject
     private void registerCommands(
-            SampleCommand sampleCommand
+            SampleCommand sampleCommand,
+            CreateServiceCommand createServiceCommand
     ) {
         final var samplePluginCommand = this.plugin.getCommand("sample");
         if (samplePluginCommand != null) {
@@ -52,6 +58,11 @@ public class SamplePlugin implements PlatformEntrypoint {
             samplePluginCommand.setTabCompleter(sampleCommand);
         }
 
+        final var createServiceCommandPluginCommand = this.plugin.getCommand("createservice");
+        if (createServiceCommandPluginCommand != null) {
+            createServiceCommandPluginCommand.setExecutor(createServiceCommand);
+            createServiceCommandPluginCommand.setTabCompleter(createServiceCommand);
+        }
     }
 
     @Override

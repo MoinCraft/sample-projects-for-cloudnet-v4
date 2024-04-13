@@ -23,6 +23,7 @@ dependencies {
     val cloudNetVersion = "4.0.0-RC10"
     implementation(platform("eu.cloudnetservice.cloudnet:bom:$cloudNetVersion"))
     implementation("eu.cloudnetservice.cloudnet", "bridge")
+    implementation("eu.cloudnetservice.cloudnet", "wrapper-jvm")
     implementation("eu.cloudnetservice.cloudnet", "platform-inject-api")
     annotationProcessor("eu.cloudnetservice.cloudnet", "platform-inject-processor", cloudNetVersion)
 }

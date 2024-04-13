@@ -39,13 +39,15 @@ public class SamplePlugin implements PlatformEntrypoint {
     @Override
     public void onLoad() {
         this.plugin.getLogger().info("Sample plugin loaded");
-        this.registerCommands();
     }
 
-    private void registerCommands() {
+    // Methods annotated with @Inject will be called after the plugin has been enabled
+    @Inject
+    private void registerCommands(
+            SampleCommand sampleCommand
+    ) {
         final var samplePluginCommand = this.plugin.getCommand("sample");
         if (samplePluginCommand != null) {
-            final var sampleCommand = new SampleCommand(this.plugin);
             samplePluginCommand.setExecutor(sampleCommand);
             samplePluginCommand.setTabCompleter(sampleCommand);
         }

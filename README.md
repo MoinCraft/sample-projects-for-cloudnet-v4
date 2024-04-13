@@ -1,6 +1,6 @@
 # Sample Projects for CloudNet v4
 [![License](https://img.shields.io/github/license/MoinCraft/sample-projects-for-cloudnet-v4.svg?style=flat-square)](./LICENSE)
-[![CloudNet](https://img.shields.io/badge/CloudNet-v4.0.0--RC9-blue.svg?style=flat-square)](https://github.com/CloudNetService/CloudNet-v3)
+[![CloudNet](https://img.shields.io/badge/CloudNet-v4.0.0--RC10-blue.svg?style=flat-square)](https://github.com/CloudNetService/CloudNet-v3)
 
 ![Cover image](./.github/cover.png)
 

@@ -1,4 +1,4 @@
-package com.github.moincraft.gradle.bukkit.plugin;
+package com.github.moincraft.bukkit.plugin;
 
 import eu.cloudnetservice.ext.platforminject.api.PlatformEntrypoint;
 import eu.cloudnetservice.ext.platforminject.api.stereotype.Command;
@@ -49,6 +49,7 @@ public class SamplePlugin implements PlatformEntrypoint {
             samplePluginCommand.setExecutor(sampleCommand);
             samplePluginCommand.setTabCompleter(sampleCommand);
         }
+
     }
 
     @Override

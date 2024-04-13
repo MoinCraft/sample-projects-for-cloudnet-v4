@@ -1,4 +1,4 @@
-package com.github.moincraft.gradle.bukkit.plugin;
+package com.github.moincraft.bukkit.plugin;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -43,6 +43,6 @@ public class SampleCommand implements TabExecutor {
         if (args.length != 1) {
             return null;
         }
-        return sender.getServer().getOnlinePlayers().stream().map(Player::getName).toList();
+        return sender.getServer().getOnlinePlayers().stream().map(Player::getName).filter(name -> name.startsWith(args[0])).toList();
     }
 }

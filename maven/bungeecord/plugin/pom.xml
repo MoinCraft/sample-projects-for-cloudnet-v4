@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.moincraft.maven</groupId>
+        <artifactId>maven-bungeecord</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.github.moincraft.maven.bungeecord</groupId>
+    <artifactId>maven-bungeecord-plugin</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>bungeecord-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>eu.cloudnetservice.cloudnet</groupId>
+                <artifactId>bom</artifactId>
+                <version>4.0.0-RC10</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- BungeeCord -->
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.20-R0.3-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- CloudNet v4 -->
+        <dependency>
+            <groupId>eu.cloudnetservice.cloudnet</groupId>
+            <artifactId>bridge</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.cloudnetservice.cloudnet</groupId>
+            <artifactId>wrapper-jvm</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.cloudnetservice.cloudnet</groupId>
+            <artifactId>platform-inject-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.cloudnetservice.cloudnet</groupId>
+            <artifactId>platform-inject-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

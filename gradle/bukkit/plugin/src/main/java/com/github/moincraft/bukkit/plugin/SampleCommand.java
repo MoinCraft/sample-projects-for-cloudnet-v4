@@ -6,7 +6,6 @@ import jakarta.inject.Singleton;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import org.bukkit.command.Command;
@@ -23,6 +22,11 @@ import java.util.List;
 public class SampleCommand implements TabExecutor {
 
     private final JavaPlugin plugin;
+
+    /**
+     * The service info holder allows us to get the current service information of the CloudNet service
+     * where this plugin is running on
+     */
     private final ServiceInfoHolder serviceInfoHolder;
 
     @Inject

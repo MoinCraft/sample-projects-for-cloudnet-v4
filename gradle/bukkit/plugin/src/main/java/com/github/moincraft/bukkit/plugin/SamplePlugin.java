@@ -47,6 +47,7 @@ public class SamplePlugin implements PlatformEntrypoint {
     }
 
     // Methods annotated with @Inject will be called after the plugin has been enabled
+    @SuppressWarnings("unused")
     @Inject
     private void registerCommands(
             SampleCommand sampleCommand,

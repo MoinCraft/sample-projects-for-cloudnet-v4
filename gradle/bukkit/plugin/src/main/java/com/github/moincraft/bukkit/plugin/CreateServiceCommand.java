@@ -19,7 +19,14 @@ import java.util.List;
 @Singleton
 public class CreateServiceCommand implements TabExecutor {
 
+    /**
+     * The service task provider allow us to get all the tasks that are available in CloudNet
+     */
     private final ServiceTaskProvider serviceTaskProvider;
+
+    /**
+     * The cloud service factory allows us to create a new service in CloudNet
+     */
     private final CloudServiceFactory cloudServiceFactory;
 
     @Inject
@@ -41,6 +48,7 @@ public class CreateServiceCommand implements TabExecutor {
             return false;
         }
 
+        // Get the service task by the name that was provided as the first argument
         final var serviceTask = this.serviceTaskProvider.serviceTask(args[0]);
         if (serviceTask == null) {
             final var builder = new ComponentBuilder();
@@ -50,12 +58,23 @@ public class CreateServiceCommand implements TabExecutor {
             return false;
         }
 
+        // Create the service in CloudNet
+        // This usually tries to also start the service
         final var result = this.cloudServiceFactory.createCloudService(ServiceConfiguration.builder(serviceTask).build());
 
         final var builder = new ComponentBuilder();
         builder.append("The service ").color(ChatColor.GREEN);
         builder.append(result.serviceInfo().serviceId().name()).color(ChatColor.AQUA);
         builder.append(" has been created").color(ChatColor.GREEN);
+        builder.append("\n").reset();
+
+        builder.append("Its current status is ").color(ChatColor.YELLOW);
+        builder.append(result.state().name()).color(ChatColor.AQUA);
+        builder.append("\n").reset();
+
+        builder.append("Its current life cycle status is ").color(ChatColor.YELLOW);
+        builder.append(result.serviceInfo().lifeCycle().name()).color(ChatColor.AQUA);
+        builder.append("\n").reset();
 
         sender.spigot().sendMessage(builder.build());
 

@@ -23,7 +23,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     // BungeeCord
-    val bungeecordVersion = "1.20-R0.3-SNAPSHOT"
+    val bungeecordVersion = "1.21-R0.1-SNAPSHOT"
     implementation("net.md-5", "bungeecord-api", bungeecordVersion)
 
     // CloudNet

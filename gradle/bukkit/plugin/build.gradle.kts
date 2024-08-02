@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     // Spigot
-    val spigotVersion = "1.20.4-R0.1-SNAPSHOT"
+    val spigotVersion = "1.21-R0.1-SNAPSHOT"
     implementation("org.spigotmc", "spigot-api", spigotVersion)
 
     // CloudNet

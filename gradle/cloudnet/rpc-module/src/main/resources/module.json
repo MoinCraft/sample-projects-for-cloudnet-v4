@@ -1,0 +1,12 @@
+{
+  "runtimeModule": false,
+  "storesSensitiveData": false,
+  "main": "com.github.moincraft.cloudnet.module.platform.node.RPCSampleModule",
+  "name": "SampleRPC",
+  "group": "com.github.moincraft.gradle.cloudnet",
+  "author": "MoinCraft aka. GiantTree",
+  "version": "1.0-SNAPSHOT",
+  "website": "https://cloudnetservice.eu",
+  "description": "Just another CloudNet module",
+  "minJavaVersionId": 0
+}

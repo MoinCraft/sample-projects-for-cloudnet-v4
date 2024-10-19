@@ -1,0 +1,51 @@
+[versions]
+cloudnet = "4.0.0-RC11"
+juppiter = "0.4.0"
+
+spigot = "1.21.1-R0.1-SNAPSHOT"
+bungeecord = "1.21-R0.1-SNAPSHOT"
+
+slf4j = "2.0.16"
+junit = "5.11.2"
+
+[libraries]
+cloudnet-bom = { group = "eu.cloudnetservice.cloudnet", name = "bom", version.ref = "cloudnet" }
+cloudnet-bridge = { group = "eu.cloudnetservice.cloudnet", name = "bridge", version.ref = "cloudnet" }
+cloudnet-wrapper-jvm = { group = "eu.cloudnetservice.cloudnet", name = "wrapper-jvm", version.ref = "cloudnet" }
+cloudnet-platform-inject-api = { group = "eu.cloudnetservice.cloudnet", name = "platform-inject-api", version.ref = "cloudnet" }
+cloudnet-platform-inject-processor = { group = "eu.cloudnetservice.cloudnet", name = "platform-inject-processor", version.ref = "cloudnet" }
+cloudnet-node = { group = "eu.cloudnetservice.cloudnet", name = "node", version.ref = "cloudnet" }
+
+spigot-api = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
+bungeecord-api = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
+
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
+
+[plugins]
+juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
+
+[bundles]
+spigot-plugin = [
+    "cloudnet-bridge",
+    "cloudnet-wrapper-jvm",
+    "cloudnet-platform-inject-api",
+    "spigot-api",
+]
+
+bungeecord-plugin = [
+    "cloudnet-bridge",
+    "cloudnet-wrapper-jvm",
+    "cloudnet-platform-inject-api",
+    "bungeecord-api",
+]
+
+node-module = [
+    "cloudnet-bridge",
+    "cloudnet-node",
+    "cloudnet-wrapper-jvm",
+    "cloudnet-platform-inject-api",
+    "slf4j-api",
+]

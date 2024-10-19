@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("eu.cloudnetservice.juppiter") version "0.4.0"
+    alias(libs.plugins.juppiter)
 }
 
 group = "com.github.moincraft.gradle.cloudnet"
@@ -31,21 +31,14 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    // BOMs
+    implementation(platform(libs.cloudnet.bom))
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 
-    compileOnly("org.slf4j", "slf4j-api", "2.0.13")
-
-    // Spigot
-    val spigotVersion = "1.21-R0.1-SNAPSHOT"
-    implementation("org.spigotmc", "spigot-api", spigotVersion)
-
-    // CloudNet
-    val cloudNetVersion = "4.0.0-RC10"
-    implementation(platform("eu.cloudnetservice.cloudnet:bom:$cloudNetVersion"))
-    implementation("eu.cloudnetservice.cloudnet", "node")
-    implementation("eu.cloudnetservice.cloudnet", "platform-inject-api")
-    annotationProcessor("eu.cloudnetservice.cloudnet", "platform-inject-processor", cloudNetVersion)
+    implementation(libs.bundles.spigot.plugin)
+    implementation(libs.bundles.node.module)
+    annotationProcessor(libs.cloudnet.platform.inject.processor)
 }
 
 tasks.test {

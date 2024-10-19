@@ -1,7 +1,7 @@
 package com.github.moincraft.cloudnet.module.platform;
 
 import eu.cloudnetservice.driver.network.NetworkClient;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
 import eu.cloudnetservice.driver.network.rpc.RPCSender;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -30,7 +30,7 @@ public class PlatformRPCSample implements RPCSample {
         @Nonnull RPCFactory rpcFactory,
         @Nonnull NetworkClient networkClient
     ) {
-        this.rpcSender = rpcFactory.providerForClass(networkClient, RPCSample.class);
+        this.rpcSender = rpcFactory.newRPCSenderBuilder(RPCSample.class).targetComponent(networkClient).build();
     }
 
     @Override

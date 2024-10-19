@@ -1,8 +1,8 @@
 package com.github.moincraft.cloudnet.module.platform.node;
 
 import com.github.moincraft.cloudnet.module.platform.RPCSample;
-import eu.cloudnetservice.driver.network.rpc.RPCFactory;
-import eu.cloudnetservice.driver.network.rpc.RPCHandlerRegistry;
+import eu.cloudnetservice.driver.network.rpc.factory.RPCFactory;
+import eu.cloudnetservice.driver.network.rpc.handler.RPCHandlerRegistry;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class NodeRPCSample implements RPCSample {
             @Nonnull RPCHandlerRegistry rpcHandlerRegistry
     ) {
         // Register the RPC handler
-        var rpcHandler = rpcFactory.newHandler(RPCSample.class, this);
+        var rpcHandler = rpcFactory.newRPCHandlerBuilder(RPCSample.class).targetInstance(this).build();
         rpcHandlerRegistry.registerHandler(rpcHandler);
     }
 

@@ -15,17 +15,13 @@ repositories {
 }
 
 dependencies {
-    // Spigot
-    val spigotVersion = "1.21-R0.1-SNAPSHOT"
-    implementation("org.spigotmc", "spigot-api", spigotVersion)
+    // BOMs
+    implementation(platform(libs.cloudnet.bom))
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 
-    // CloudNet
-    val cloudNetVersion = "4.0.0-RC10"
-    implementation(platform("eu.cloudnetservice.cloudnet:bom:$cloudNetVersion"))
-    implementation("eu.cloudnetservice.cloudnet", "bridge")
-    implementation("eu.cloudnetservice.cloudnet", "wrapper-jvm")
-    implementation("eu.cloudnetservice.cloudnet", "platform-inject-api")
-    annotationProcessor("eu.cloudnetservice.cloudnet", "platform-inject-processor", cloudNetVersion)
+    implementation(libs.bundles.spigot.plugin)
+    annotationProcessor(libs.cloudnet.platform.inject.processor)
 }
 
 tasks.test {

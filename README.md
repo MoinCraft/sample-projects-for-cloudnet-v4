@@ -1,6 +1,6 @@
 # Sample Projects for CloudNet v4
 [![License](https://img.shields.io/github/license/MoinCraft/sample-projects-for-cloudnet-v4.svg?style=flat-square)](./LICENSE)
-[![CloudNet](https://img.shields.io/badge/CloudNet-v4.0.0--RC10-blue.svg?style=flat-square)](https://github.com/CloudNetService/CloudNet-v3)
+[![CloudNet](https://img.shields.io/badge/CloudNet-v4.0.0--RC11-blue.svg?style=flat-square)](https://github.com/CloudNetService/CloudNet)
 
 ![Cover image](./.github/cover.png)
 
@@ -11,7 +11,7 @@ CloudNet is a Minecraft server management system that is designed to be as flexi
 It supports a variety of Minecraft server software, including Spigot, Paper, Sponge, Nukkit, BungeeCord, Waterfall, and Velocity.
 CloudNet v4 is the latest version of CloudNet, and is currently in development. 
 CloudNet v4 is the next version of CloudNet, and is designed to be more flexible, more powerful, and easier to use.
-Learn more about CloudNet [here](https://cloudnetservice.eu/) and [here](https://github.com/CloudNetService/CloudNet-v3).
+Learn more about CloudNet [here](https://cloudnetservice.eu/) and [here](https://github.com/CloudNetService/CloudNet).
 
 ## What is this repository?
 This repository contains a collection of sample projects and resources to help you get started with CloudNet v4.

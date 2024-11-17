@@ -1,12 +1,15 @@
 [versions]
-cloudnet = "4.0.0-RC11"
+cloudnet = "4.0.0-RC11.1"
 juppiter = "0.4.0"
 
-spigot = "1.21.1-R0.1-SNAPSHOT"
+spigot = "1.21.3-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.1-SNAPSHOT"
 
 slf4j = "2.0.16"
 junit = "5.11.2"
+
+natty = "0.13"
+prettytime = "5.0.9.Final"
 
 [libraries]
 cloudnet-bom = { group = "eu.cloudnetservice.cloudnet", name = "bom", version.ref = "cloudnet" }
@@ -23,6 +26,9 @@ slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 
 junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
+
+natty = { group = "com.joestelmach", name = "natty", version.ref = "natty" }
+prettytime-nlp = { group = "org.ocpsoft.prettytime", name = "prettytime-nlp", version.ref = "prettytime" }
 
 [plugins]
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
@@ -45,7 +51,6 @@ bungeecord-plugin = [
 node-module = [
     "cloudnet-bridge",
     "cloudnet-node",
-    "cloudnet-wrapper-jvm",
     "cloudnet-platform-inject-api",
     "slf4j-api",
 ]

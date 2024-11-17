@@ -1,6 +1,7 @@
 [versions]
 cloudnet = "4.0.0-RC11.1"
 juppiter = "0.4.0"
+shadow = "8.3.5"
 
 spigot = "1.21.3-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.1-SNAPSHOT"
@@ -23,6 +24,7 @@ spigot-api = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigo
 bungeecord-api = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
 
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4j-nop = { group = "org.slf4j", name = "slf4j-nop", version.ref = "slf4j" }
 
 junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
@@ -32,6 +34,7 @@ prettytime-nlp = { group = "org.ocpsoft.prettytime", name = "prettytime-nlp", ve
 
 [plugins]
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
 [bundles]
 spigot-plugin = [

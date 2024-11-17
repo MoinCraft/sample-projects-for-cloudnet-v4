@@ -1,8 +1,10 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import eu.cloudnetservice.gradle.juppiter.ModuleConfiguration
 
 plugins {
     id("java")
     alias(libs.plugins.juppiter)
+    alias(libs.plugins.shadow)
 }
 
 group = "com.github.moincraft.gradle.cloudnet"
@@ -30,13 +32,14 @@ repositories {
 
 dependencies {
     // BOMs
-    implementation(platform(libs.cloudnet.bom))
+    compileOnly(platform(libs.cloudnet.bom))
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
 
-    implementation(libs.bundles.node.module)
-    implementation(libs.prettytime.nlp)
-    implementation(libs.natty)
+    compileOnly(libs.bundles.node.module)
+    compileOnly(libs.prettytime.nlp)
+    compileOnly(libs.natty)
+    implementation(group = "org.slf4j", name = "slf4j-nop", version = "1.7.36")
     annotationProcessor(libs.cloudnet.platform.inject.processor)
 }
 
@@ -52,8 +55,15 @@ moduleJson {
     dependencies.add(buildModuleDependency(libs.natty))
 }
 
-tasks.withType<Copy>() {
+tasks.withType<Copy> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType<ShadowJar> {
+    // Don't set a classifier for the shadow jar
+    this.archiveClassifier.set("")
+    // Relocate the slf4j package to fix warnings due to PrettyTime-NLP
+    this.relocate("org.slf4j", "org.ocpsoft.prettytime.shade.org.slf4j")
 }
 
 fun buildModuleDependency(dependency: Provider<MinimalExternalModuleDependency>): ModuleConfiguration.Dependency {

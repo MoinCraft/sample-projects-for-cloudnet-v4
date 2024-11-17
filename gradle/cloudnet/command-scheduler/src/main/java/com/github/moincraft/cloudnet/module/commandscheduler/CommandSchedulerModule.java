@@ -51,7 +51,7 @@ public class CommandSchedulerModule extends DriverModule {
         this.commandProvider = commandProvider;
 
         // Only start the scheduler on the head node
-        if(nodeServerProvider.localNode().head()) {
+        if (nodeServerProvider.localNode().head()) {
             this.task = this.executor.scheduleAtFixedRate(this::checkSchedule, 0, 1, TimeUnit.SECONDS);
         }
     }

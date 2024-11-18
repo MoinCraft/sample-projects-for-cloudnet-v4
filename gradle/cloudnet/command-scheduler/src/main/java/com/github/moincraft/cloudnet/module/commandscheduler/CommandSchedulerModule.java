@@ -60,6 +60,7 @@ public class CommandSchedulerModule extends DriverModule {
     public void registerCommand(@NotNull CommandProvider commandProvider) {
         // register the bridge command
         commandProvider.register(CommandSchedulerCommand.class);
+        commandProvider.register(SleepCommand.class);
     }
 
     @ModuleTask(lifecycle = ModuleLifeCycle.STOPPED)

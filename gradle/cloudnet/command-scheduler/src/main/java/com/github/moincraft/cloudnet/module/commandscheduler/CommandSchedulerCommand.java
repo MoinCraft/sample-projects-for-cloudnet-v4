@@ -20,11 +20,8 @@ import org.incendo.cloud.context.CommandInput;
 import org.incendo.cloud.type.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
-import org.ocpsoft.prettytime.shade.net.fortuna.ical4j.model.Date;
 
-import java.time.Duration;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Singleton
@@ -63,7 +60,7 @@ public class CommandSchedulerCommand {
             return List.of();
         }
         var commands = new ArrayList<String>();
-        for (var command : schedule.get().script().commands()) {
+        for (var command : schedule.get().commands()) {
             // Add quotes to the command as escaped spaces are not properly supported
             commands.add('"' + command + '"');
         }
@@ -101,10 +98,8 @@ public class CommandSchedulerCommand {
         source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-header"));
         source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-separator"));
         this.module.getDatabase().entries().forEach((name, document) -> {
-            var schedule = document.toInstanceOf(Schedule.class);
-            var parser = new PrettyTimeParser(TimeZone.getTimeZone(schedule.lastExecution().getZone()));
-            final var lastExecutionDate = Date.from(schedule.lastExecution().toInstant());
-            var parsed = parser.parse(schedule.expression(), lastExecutionDate);
+            final var schedule = document.toInstanceOf(Schedule.class);
+            final var nextExecution = schedule.determineNextExecution(ZonedDateTime.now());
 
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-internal-id", name));
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-name", schedule.name()));
@@ -112,7 +107,7 @@ public class CommandSchedulerCommand {
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-expression", schedule.expression()));
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-single-use", schedule.singleUse()));
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-enabled", schedule.enabled()));
-            final List<String> commands = schedule.script().commands();
+            final List<String> commands = schedule.commands();
             if (commands.isEmpty()) {
                 source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-script-empty"));
             } else {
@@ -121,17 +116,11 @@ public class CommandSchedulerCommand {
                     source.sendMessage("  - " + command);
                 }
             }
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-script-delay", schedule.script().delay()));
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-last-execution", schedule.lastExecution()));
-            if (parsed.isEmpty()) {
+            if (nextExecution == null) {
                 source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-next-execution-invalid"));
-            } else if (parsed.size() == 1) {
-                source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-next-execution", parsed.getFirst()));
             } else {
-                source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-next-execution-multiple"));
-                for (var date : parsed) {
-                    source.sendMessage("  - " + date);
-                }
+                source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-next-execution", nextExecution));
             }
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-element-separator"));
         });
@@ -160,9 +149,7 @@ public class CommandSchedulerCommand {
             @Argument(value = "schedule", parserName = "schedule") Schedule schedule,
             @Argument("expression") @Quoted String expression
     ) {
-        var parser = new PrettyTimeParser(TimeZone.getTimeZone(schedule.lastExecution().getZone()));
-        var parsed = parser.parseSyntax(expression);
-        if (parsed.isEmpty()) {
+        if (!Schedule.validateExpression(schedule, expression)) {
             source.sendMessage(I18n.trans("module-commandscheduler-expression-parse-error", expression));
             return;
         }
@@ -202,44 +189,15 @@ public class CommandSchedulerCommand {
         }
     }
 
-    @Command("scheduler command <schedule> set delay <delay>")
-    public void setDelay(
-            @NotNull CommandSource source,
-            @Argument(value = "schedule", parserName = "schedule") Schedule schedule,
-            @Argument("delay") @Quoted String delay
-    ) {
-        var script = schedule.script();
-
-        var parser = new PrettyTimeParser(TimeZone.getDefault());
-        var now = Date.from(Instant.now());
-        var parsedDelay = parser.parse(delay, now);
-        if (parsedDelay.isEmpty()) {
-            source.sendMessage(I18n.trans("module-commandscheduler-delay-parse-error", delay));
-            return;
-        }
-        var delayDate = parsedDelay.getFirst();
-        final Duration delayDuration = Duration.between(now.toInstant(), delayDate.toInstant());
-        if (delayDuration.isNegative()) {
-            source.sendMessage(I18n.trans("module-commandscheduler-delay-negative-error"));
-            return;
-        }
-
-        script = script.withDelay(delayDuration);
-        schedule = schedule.withScript(script);
-
-        this.saveSchedule(source, schedule);
-        source.sendMessage(I18n.trans("module-commandscheduler-delay-set", schedule.name(), delay));
-    }
-
     @Command("scheduler command <schedule> add <command>")
     public void addCommand(
             @NotNull CommandSource source,
             @Argument(value = "schedule", parserName = "schedule") Schedule schedule,
             @Argument("command") @Greedy String command
     ) {
-        var script = schedule.script();
-        script.commands().add(command);
-        this.saveSchedule(source, schedule.withScript(script));
+        var commands = schedule.commands();
+        commands.add(command);
+        this.saveSchedule(source, schedule.withCommands(commands));
         source.sendMessage(I18n.trans("module-commandscheduler-command-added", command, schedule.name()));
     }
 
@@ -250,17 +208,17 @@ public class CommandSchedulerCommand {
             @Argument("index") int index,
             @Argument("command") @Greedy String command
     ) {
-        var script = schedule.script();
+        var commands = schedule.commands();
         if (index < 0) {
             source.sendMessage(I18n.trans("module-commandscheduler-index-negative-error"));
             return;
         }
-        if (index <= script.commands().size()) {
-            script.commands().add(index, command);
+        if (index <= commands.size()) {
+            commands.add(index, command);
         } else {
-            script.commands().add(command);
+            commands.add(command);
         }
-        this.saveSchedule(source, schedule.withScript(script));
+        this.saveSchedule(source, schedule.withCommands(commands));
         source.sendMessage(I18n.trans("module-commandscheduler-command-inserted", command, index, schedule.name()));
     }
 
@@ -270,14 +228,14 @@ public class CommandSchedulerCommand {
             @Argument(value = "schedule", parserName = "schedule") Schedule schedule,
             @Argument(value = "command", suggestions = "scheduleCommands") @Quoted Either<Integer, String> command
     ) {
-        var script = schedule.script();
+        var commands = schedule.commands();
         if (command.primary().isPresent()) {
             int index = command.primary().get();
-            if (index < 0 || index >= script.commands().size()) {
-                source.sendMessage(I18n.trans("module-commandscheduler-index-out-of-bounds-error", schedule.name(), script.commands().size()));
+            if (index < 0 || index >= commands.size()) {
+                source.sendMessage(I18n.trans("module-commandscheduler-index-out-of-bounds-error", schedule.name(), commands.size()));
                 return;
             }
-            var removed = script.commands().remove(index);
+            var removed = commands.remove(index);
             if (removed == null) {
                 source.sendMessage(I18n.trans("module-commandscheduler-command-remove-index-error", index, schedule.name()));
                 return;
@@ -286,7 +244,7 @@ public class CommandSchedulerCommand {
             }
         } else if (command.fallback().isPresent()) {
             final String commandString = command.fallback().get();
-            if (!script.commands().remove(commandString)) {
+            if (!commands.remove(commandString)) {
                 source.sendMessage(I18n.trans("module-commandscheduler-command-remove-error", commandString, schedule.name()));
                 return;
             }
@@ -295,7 +253,7 @@ public class CommandSchedulerCommand {
             return;
         }
 
-        this.saveSchedule(source, schedule.withScript(script));
+        this.saveSchedule(source, schedule.withCommands(commands));
         source.sendMessage(I18n.trans("module-commandscheduler-command-removed", command, schedule.name()));
     }
 

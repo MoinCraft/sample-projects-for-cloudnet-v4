@@ -1,6 +1,7 @@
 package com.github.moincraft.cloudnet.module.commandscheduler;
 
 import com.github.moincraft.cloudnet.module.commandscheduler.data.Schedule;
+import com.google.common.reflect.TypeToken;
 import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
@@ -14,15 +15,11 @@ import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
-import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
-import java.sql.Date;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -38,13 +35,11 @@ public class CommandSchedulerModule extends DriverModule {
     private CommandProvider commandProvider;
     private final Set<String> runningSchedules = new HashSet<>();
 
-    @ModuleTask(lifecycle = ModuleLifeCycle.STARTED)
-    public void initModule(
-            @NotNull DatabaseProvider databaseProvider,
-            @NotNull @Named("taskScheduler") ScheduledExecutorService executor,
-            @NotNull CommandProvider commandProvider,
-            @NotNull NodeServerProvider nodeServerProvider
-    ) {
+    @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = 127)
+    public void initModule(@NotNull DatabaseProvider databaseProvider,
+                           @NotNull @Named("taskScheduler") ScheduledExecutorService executor,
+                           @NotNull CommandProvider commandProvider,
+                           @NotNull NodeServerProvider nodeServerProvider) {
         I18n.loadFromLangPath(CommandSchedulerModule.class);
         this.databaseProvider = databaseProvider;
         this.executor = executor;
@@ -61,6 +56,30 @@ public class CommandSchedulerModule extends DriverModule {
         // register the bridge command
         commandProvider.register(CommandSchedulerCommand.class);
         commandProvider.register(SleepCommand.class);
+    }
+
+    @ModuleTask(lifecycle = ModuleLifeCycle.STARTED, order = 126)
+    public void migrateSchedules() {
+        var database = this.getDatabase();
+        if (database.entries().isEmpty()) {
+            return;
+        }
+        ConsoleCommandSource.INSTANCE.sendMessage("Migrating schedules to new format");
+        database.entries().forEach((key, document) -> {
+            if (document.contains("script") && document.readDocument("script").contains("commands")) {
+                List<String> commands = document.readDocument("script").readObject("commands", new TypeToken<List<String>>() {
+                }.getType());
+                var schedule = new Schedule(key,
+                        commands,
+                        document.getString("expression"),
+                        document.readObject("creationDate", ZonedDateTime.class),
+                        document.readObject("lastExecution", ZonedDateTime.class),
+                        document.getBoolean("singleUse"),
+                        document.getBoolean("enabled"));
+                schedule = schedule.withCommands(commands);
+                database.insert(key, Document.newJsonDocument().appendTree(schedule));
+            }
+        });
     }
 
     @ModuleTask(lifecycle = ModuleLifeCycle.STOPPED)
@@ -80,44 +99,32 @@ public class CommandSchedulerModule extends DriverModule {
     }
 
     private void tryRunSchedule(Schedule schedule) {
-        var parser = new PrettyTimeParser(TimeZone.getTimeZone(schedule.lastExecution().getZone()));
-        final var lastExecutionDate = Date.from(schedule.lastExecution().toInstant());
-        var parsedDates = parser.parse(schedule.expression(), lastExecutionDate);
-        for (var date : parsedDates) {
-            if (date.before(Date.from(Instant.now())) && date.after(lastExecutionDate)) {
-                var script = schedule.script();
-                // run the script
-                List<String> commands = script.commands();
-                for (int i = 0; i < commands.size(); i++) {
-                    var command = commands.get(i);
-                    try {
-                        ConsoleCommandSource.INSTANCE.sendMessage(I18n.trans("module-commandscheduler-executing-command", command));
-                        this.commandProvider.execute(ConsoleCommandSource.INSTANCE, command).get();
-
-                        // Only sleep if there are more commands to execute
-                        if (i < commands.size() - 1) {
-                            Thread.sleep(script.delay());
-                        }
-                    } catch (InterruptedException | ExecutionException e) {
-                        break;
-                    }
-                }
-
-                var newSchedule = this.getDatabase().get(schedule.name());
-                if (newSchedule == null) {
+        final var nextExecution = schedule.determineNextExecution(ZonedDateTime.now());
+        if (nextExecution != null) {
+            // run the script
+            for (String command : schedule.commands()) {
+                try {
+                    ConsoleCommandSource.INSTANCE.sendMessage(I18n.trans("module-commandscheduler-executing-command", command));
+                    this.commandProvider.execute(ConsoleCommandSource.INSTANCE, command).get();
+                } catch (InterruptedException | ExecutionException e) {
                     break;
                 }
-                schedule = newSchedule.toInstanceOf(Schedule.class);
-
-                // disable the schedule if it is single use
-                if (schedule.singleUse()) {
-                    schedule = schedule.withEnabled(false);
-                }
-                // update the last execution date
-                this.getDatabase().insert(schedule.name(), Document.newJsonDocument().appendTree(schedule.withLastExecution(ZonedDateTime.now())));
-                break;
             }
+
+            var newSchedule = this.getDatabase().get(schedule.name());
+            if (newSchedule == null) {
+                return;
+            }
+            schedule = newSchedule.toInstanceOf(Schedule.class);
+
+            // disable the schedule if it is single use
+            if (schedule.singleUse()) {
+                schedule = schedule.withEnabled(false);
+            }
+            // update the last execution date
+            this.getDatabase().insert(schedule.name(), Document.newJsonDocument().appendTree(schedule.withLastExecution(ZonedDateTime.now())));
         }
+
         this.runningSchedules.remove(schedule.name());
     }
 

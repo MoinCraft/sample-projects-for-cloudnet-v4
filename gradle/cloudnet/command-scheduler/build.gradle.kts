@@ -39,6 +39,7 @@ dependencies {
     compileOnly(libs.bundles.node.module)
     compileOnly(libs.prettytime.nlp)
     compileOnly(libs.natty)
+    compileOnly(libs.cron.utils)
     implementation(group = "org.slf4j", name = "slf4j-nop", version = "1.7.36")
     annotationProcessor(libs.cloudnet.platform.inject.processor)
 }
@@ -53,6 +54,7 @@ moduleJson {
     main = "com.github.moincraft.cloudnet.module.commandscheduler.CommandSchedulerModule"
     dependencies.add(buildModuleDependency(libs.prettytime.nlp))
     dependencies.add(buildModuleDependency(libs.natty))
+    dependencies.add(buildModuleDependency(libs.cron.utils))
 }
 
 tasks.withType<Copy> {

@@ -11,6 +11,7 @@ junit = "5.11.2"
 
 natty = "0.13"
 prettytime = "5.0.9.Final"
+cron-utils = "9.2.1"
 
 [libraries]
 cloudnet-bom = { group = "eu.cloudnetservice.cloudnet", name = "bom", version.ref = "cloudnet" }
@@ -31,6 +32,7 @@ junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.r
 
 natty = { group = "com.joestelmach", name = "natty", version.ref = "natty" }
 prettytime-nlp = { group = "org.ocpsoft.prettytime", name = "prettytime-nlp", version.ref = "prettytime" }
+cron-utils = { group = "com.cronutils", name = "cron-utils", version.ref = "cron-utils" }
 
 [plugins]
 juppiter = { id = "eu.cloudnetservice.juppiter", version.ref = "juppiter" }

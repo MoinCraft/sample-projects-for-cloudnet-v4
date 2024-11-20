@@ -99,7 +99,7 @@ public class CommandSchedulerCommand {
         source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-separator"));
         this.module.getDatabase().entries().forEach((name, document) -> {
             final var schedule = document.toInstanceOf(Schedule.class);
-            final var nextExecution = schedule.determineNextExecution(ZonedDateTime.now());
+            final var nextExecution = schedule.determineNextExecution(schedule.lastExecution());
 
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-internal-id", name));
             source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-name", schedule.name()));

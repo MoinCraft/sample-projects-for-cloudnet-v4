@@ -100,7 +100,6 @@ public record Schedule(String name,
             var parsedDates = parser.parse(this.expression(), lastExecutionDate);
             parsedExecutions = parsedDates.stream()
                     .filter(date -> date.after(lastExecutionDate))
-                    .filter(date -> date.before(nowDate))
                     .min(Comparator.naturalOrder())
                     .map(date -> ZonedDateTime.ofInstant(date.toInstant(), this.creationDate().getZone()))
                     .orElse(null);

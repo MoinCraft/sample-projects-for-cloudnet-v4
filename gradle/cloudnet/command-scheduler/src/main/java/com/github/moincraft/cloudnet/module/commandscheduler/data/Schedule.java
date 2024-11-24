@@ -80,29 +80,28 @@ public record Schedule(String name,
     }
 
     public ZonedDateTime determineNextExecution(ZonedDateTime now) {
-        // Second try to parse the expression using PrettyTimeParser
-        ZonedDateTime parsedExecutions = null;
+        // First try to parse the expression using CronExpression
+        ZonedDateTime parsedExecution = null;
         try {
             var cron = CRON_PARSER.parse(this.expression());
             var nextExecution = ExecutionTime.forCron(cron).nextExecution(now);
             if (nextExecution.isPresent()) {
-                parsedExecutions = nextExecution.get();
+                parsedExecution = nextExecution.get();
             }
         } catch (IllegalArgumentException e) {
             // ignore
         }
 
-        // First try to parse the expression using CronExpression
-        if (parsedExecutions == null) {
+        // Second try to parse the expression using PrettyTimeParser
+        if (parsedExecution == null) {
             final var parser = new PrettyTimeParser(TimeZone.getTimeZone(this.creationDate().getZone().getId()));
-            final var lastExecutionDate = Date.from(this.lastExecution().toInstant());
-            var parsedDates = parser.parse(this.expression(), lastExecutionDate);
-            parsedExecutions = parsedDates.stream()
-                    .filter(date -> date.after(lastExecutionDate))
+            final var relativeNowDate = Date.from(now.toInstant());
+            var parsedDates = parser.parse(this.expression(), relativeNowDate);
+            parsedExecution = parsedDates.stream()
                     .min(Comparator.naturalOrder())
                     .map(date -> ZonedDateTime.ofInstant(date.toInstant(), this.creationDate().getZone()))
                     .orElse(null);
         }
-        return parsedExecutions;
+        return parsedExecution;
     }
 }

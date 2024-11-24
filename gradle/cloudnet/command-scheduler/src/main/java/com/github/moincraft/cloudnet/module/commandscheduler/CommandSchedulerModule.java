@@ -100,7 +100,9 @@ public class CommandSchedulerModule extends DriverModule {
 
     private void tryRunSchedule(Schedule schedule) {
         final var nextExecution = schedule.determineNextExecution(schedule.lastExecution());
-        if (nextExecution != null && nextExecution.isBefore(ZonedDateTime.now())) {
+        if (nextExecution != null
+                && nextExecution.isBefore(ZonedDateTime.now())
+                && nextExecution.isAfter(schedule.lastExecution())) {
             // run the script
             for (String command : schedule.commands()) {
                 try {

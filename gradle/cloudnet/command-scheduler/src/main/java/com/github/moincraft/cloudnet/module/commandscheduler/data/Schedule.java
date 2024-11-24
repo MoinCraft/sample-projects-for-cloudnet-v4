@@ -7,11 +7,9 @@ import com.cronutils.parser.CronParser;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 public record Schedule(String name,
                        List<String> commands,
@@ -79,6 +77,28 @@ public record Schedule(String name,
         return tempSchedule.determineNextExecution(ZonedDateTime.now()) != null;
     }
 
+    /**
+     * Comparator for dates parsed by PrettyTimeParser.
+     * The comparator will sort the dates by the following rules:
+     * - If one date is before the current time and the other is after, the one before will be sorted last
+     * - If both dates are before or after the current time, the one closest to the current time will be sorted first
+     *
+     * @param now the current time
+     * @return the comparator
+     */
+    private static Comparator<Date> prettyTimeDateComparator(ZonedDateTime now) {
+        return (o1, o2) -> {
+            var date1 = ZonedDateTime.ofInstant(o1.toInstant(), now.getZone());
+            var date2 = ZonedDateTime.ofInstant(o2.toInstant(), now.getZone());
+            if(date1.isBefore(now) && date2.isAfter(now)) {
+                return 1;
+            } else if(date1.isAfter(now) && date2.isBefore(now)) {
+                return -1;
+            }
+            return Duration.between(now, date1).abs().compareTo(Duration.between(now, date2).abs());
+        };
+    }
+
     public ZonedDateTime determineNextExecution(ZonedDateTime now) {
         // First try to parse the expression using CronExpression
         ZonedDateTime parsedExecution = null;
@@ -97,7 +117,7 @@ public record Schedule(String name,
             final var parser = new PrettyTimeParser(TimeZone.getTimeZone(this.creationDate().getZone().getId()));
             var parsedDates = parser.parse(this.expression(), Date.from(this.lastExecution().toInstant()));
             parsedExecution = parsedDates.stream()
-                    .min(Comparator.naturalOrder())
+                    .min(Schedule.prettyTimeDateComparator(now))
                     .map(date -> ZonedDateTime.ofInstant(date.toInstant(), this.creationDate().getZone()))
                     .orElse(null);
         }

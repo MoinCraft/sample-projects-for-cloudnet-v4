@@ -21,7 +21,6 @@ import org.incendo.cloud.type.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.ZonedDateTime;
 import java.util.*;
 
 @Singleton
@@ -228,14 +227,15 @@ public class CommandSchedulerCommand {
             @Argument(value = "schedule", parserName = "schedule") Schedule schedule,
             @Argument(value = "command", suggestions = "scheduleCommands") @Quoted Either<Integer, String> command
     ) {
+        String removed;
         var commands = schedule.commands();
         if (command.primary().isPresent()) {
             int index = command.primary().get();
             if (index < 0 || index >= commands.size()) {
-                source.sendMessage(I18n.trans("module-commandscheduler-index-out-of-bounds-error", schedule.name(), commands.size()));
+                source.sendMessage(I18n.trans("module-commandscheduler-index-out-of-bounds-error", index, schedule.name(), commands.size()));
                 return;
             }
-            var removed = commands.remove(index);
+            removed = commands.remove(index);
             if (removed == null) {
                 source.sendMessage(I18n.trans("module-commandscheduler-command-remove-index-error", index, schedule.name()));
                 return;
@@ -248,13 +248,14 @@ public class CommandSchedulerCommand {
                 source.sendMessage(I18n.trans("module-commandscheduler-command-remove-error", commandString, schedule.name()));
                 return;
             }
+            removed = commandString;
         } else {
             source.sendMessage(I18n.trans("module-commandscheduler-parameter-error"));
             return;
         }
 
         this.saveSchedule(source, schedule.withCommands(commands));
-        source.sendMessage(I18n.trans("module-commandscheduler-command-removed", command, schedule.name()));
+        source.sendMessage(I18n.trans("module-commandscheduler-command-removed", removed, schedule.name()));
     }
 
 

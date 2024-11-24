@@ -95,8 +95,7 @@ public record Schedule(String name,
         // Second try to parse the expression using PrettyTimeParser
         if (parsedExecution == null) {
             final var parser = new PrettyTimeParser(TimeZone.getTimeZone(this.creationDate().getZone().getId()));
-            final var relativeNowDate = Date.from(now.toInstant());
-            var parsedDates = parser.parse(this.expression(), relativeNowDate);
+            var parsedDates = parser.parse(this.expression(), Date.from(this.lastExecution().toInstant()));
             parsedExecution = parsedDates.stream()
                     .min(Comparator.naturalOrder())
                     .map(date -> ZonedDateTime.ofInstant(date.toInstant(), this.creationDate().getZone()))

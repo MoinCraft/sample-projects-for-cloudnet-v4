@@ -97,7 +97,9 @@ public class CommandSchedulerCommand {
         }
         source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-header"));
         source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-separator"));
-        this.module.getDatabase().entries().forEach((name, document) -> {
+        var schedules = new TreeMap<String, Document>(Comparator.naturalOrder());
+        schedules.putAll(this.module.getDatabase().entries());
+        schedules.forEach((name, document) -> {
             final var schedule = document.toInstanceOf(Schedule.class);
             final var nextExecution = schedule.determineNextExecution(ZonedDateTime.now());
 

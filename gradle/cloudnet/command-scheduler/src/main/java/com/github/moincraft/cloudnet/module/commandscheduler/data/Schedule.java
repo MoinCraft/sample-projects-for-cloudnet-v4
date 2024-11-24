@@ -94,7 +94,6 @@ public record Schedule(String name,
 
         // First try to parse the expression using CronExpression
         if (parsedExecutions == null) {
-            final var nowDate = Date.from(now.toInstant());
             final var parser = new PrettyTimeParser(TimeZone.getTimeZone(this.creationDate().getZone().getId()));
             final var lastExecutionDate = Date.from(this.lastExecution().toInstant());
             var parsedDates = parser.parse(this.expression(), lastExecutionDate);

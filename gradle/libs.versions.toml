@@ -1,13 +1,13 @@
 [versions]
-cloudnet = "4.0.0-RC11.1"
+cloudnet = "4.0.0-RC14"
 juppiter = "0.4.0"
-shadow = "8.3.5"
+shadow = "9.1.0"
 
-spigot = "1.21.3-R0.1-SNAPSHOT"
+spigot = "1.21.8-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.1-SNAPSHOT"
 
-slf4j = "2.0.16"
-junit = "5.11.2"
+slf4j = "2.0.17"
+junit = "5.13.4"
 
 natty = "0.13"
 prettytime = "5.0.9.Final"
@@ -15,11 +15,12 @@ cron-utils = "9.2.1"
 
 [libraries]
 cloudnet-bom = { group = "eu.cloudnetservice.cloudnet", name = "bom", version.ref = "cloudnet" }
-cloudnet-bridge = { group = "eu.cloudnetservice.cloudnet", name = "bridge", version.ref = "cloudnet" }
-cloudnet-wrapper-jvm = { group = "eu.cloudnetservice.cloudnet", name = "wrapper-jvm", version.ref = "cloudnet" }
+cloudnet-utils = { group = "eu.cloudnetservice.cloudnet", name = "utils-base", version.ref = "cloudnet" }
+cloudnet-bridge = { group = "eu.cloudnetservice.cloudnet", name = "bridge-api", version.ref = "cloudnet" }
+cloudnet-wrapper-jvm = { group = "eu.cloudnetservice.cloudnet", name = "wrapper-jvm-api", version.ref = "cloudnet" }
 cloudnet-platform-inject-api = { group = "eu.cloudnetservice.cloudnet", name = "platform-inject-api", version.ref = "cloudnet" }
 cloudnet-platform-inject-processor = { group = "eu.cloudnetservice.cloudnet", name = "platform-inject-processor", version.ref = "cloudnet" }
-cloudnet-node = { group = "eu.cloudnetservice.cloudnet", name = "node", version.ref = "cloudnet" }
+cloudnet-node = { group = "eu.cloudnetservice.cloudnet", name = "node-api", version.ref = "cloudnet" }
 
 spigot-api = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
 bungeecord-api = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
@@ -54,6 +55,7 @@ bungeecord-plugin = [
 ]
 
 node-module = [
+    "cloudnet-utils",
     "cloudnet-bridge",
     "cloudnet-node",
     "cloudnet-platform-inject-api",

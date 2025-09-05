@@ -1,7 +1,7 @@
 package com.github.moincraft.cloudnet.module.commandscheduler;
 
 import com.github.moincraft.cloudnet.module.commandscheduler.data.Schedule;
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.driver.document.Document;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.exception.ArgumentNotAvailableException;
@@ -31,12 +31,15 @@ import java.util.*;
 public class CommandSchedulerCommand {
 
     private final CommandSchedulerModule module;
+    private final I18n i18n;
 
     @Inject
     public CommandSchedulerCommand(
-            @NotNull CommandSchedulerModule module
+            @NotNull CommandSchedulerModule module,
+            @NotNull I18n i18n
     ) {
         this.module = module;
+        this.i18n = i18n;
     }
 
     @Parser(name = "schedule", suggestions = "schedule")
@@ -45,7 +48,7 @@ public class CommandSchedulerCommand {
         if (this.module.getDatabase().contains(inputString)) {
             return Objects.requireNonNull(this.module.getDatabase().get(inputString)).toInstanceOf(Schedule.class);
         }
-        throw new ArgumentNotAvailableException(I18n.trans("module-commandscheduler-schedule-not-found", inputString));
+        throw new ArgumentNotAvailableException(this.i18n.translate("module-commandscheduler-schedule-not-found", inputString));
     }
 
     @Suggestions("schedule")
@@ -86,45 +89,45 @@ public class CommandSchedulerCommand {
     public void listSchedules(@NotNull CommandSource source) {
         var count = this.module.getDatabase().documentCount();
         if (count == 0) {
-            source.sendMessage(I18n.trans("module-commandscheduler-no-schedules"));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-no-schedules"));
             return;
         }
 
         if (count == 1) {
-            source.sendMessage(I18n.trans("module-commandscheduler-one-schedule"));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-one-schedule"));
         } else {
-            source.sendMessage(I18n.trans("module-commandscheduler-multiple-schedules", count));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-multiple-schedules", count));
         }
-        source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-header"));
-        source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-separator"));
+        source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-header"));
+        source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-separator"));
         var schedules = new TreeMap<String, Document>(Comparator.naturalOrder());
         schedules.putAll(this.module.getDatabase().entries());
         schedules.forEach((name, document) -> {
             final var schedule = document.toInstanceOf(Schedule.class);
             final var nextExecution = schedule.determineNextExecution(ZonedDateTime.now());
 
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-internal-id", name));
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-name", schedule.name()));
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-creation", schedule.creationDate()));
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-expression", schedule.expression()));
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-single-use", schedule.singleUse()));
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-enabled", schedule.enabled()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-internal-id", name));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-name", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-creation", schedule.creationDate()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-expression", schedule.expression()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-single-use", schedule.singleUse()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-enabled", schedule.enabled()));
             final List<String> commands = schedule.commands();
             if (commands.isEmpty()) {
-                source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-script-empty"));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-script-empty"));
             } else {
-                source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-script"));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-script"));
                 for (var command : commands) {
                     source.sendMessage("  - " + command);
                 }
             }
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-last-execution", schedule.lastExecution()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-last-execution", schedule.lastExecution()));
             if (nextExecution == null) {
-                source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-next-execution-invalid"));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-next-execution-invalid"));
             } else {
-                source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-key-next-execution", nextExecution));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-key-next-execution", nextExecution));
             }
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-list-element-separator"));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-list-element-separator"));
         });
     }
 
@@ -142,7 +145,7 @@ public class CommandSchedulerCommand {
                 singleUse,
                 enabled);
         this.saveSchedule(source, schedule);
-        source.sendMessage(I18n.trans("module-commandscheduler-schedule-created", name));
+        source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-created", name));
     }
 
     @Command("scheduler set <schedule> expression <expression>")
@@ -152,13 +155,13 @@ public class CommandSchedulerCommand {
             @Argument("expression") @Quoted String expression
     ) {
         if (!Schedule.validateExpression(schedule, expression)) {
-            source.sendMessage(I18n.trans("module-commandscheduler-expression-parse-error", expression));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-expression-parse-error", expression));
             return;
         }
 
         schedule = schedule.withExpression(expression);
         this.saveSchedule(source, schedule);
-        source.sendMessage(I18n.trans("module-commandscheduler-expression-set", schedule.name(), expression));
+        source.sendMessage(this.i18n.translate("module-commandscheduler-expression-set", schedule.name(), expression));
     }
 
     @Command("scheduler set <schedule> singleUse <singleUse>")
@@ -170,9 +173,9 @@ public class CommandSchedulerCommand {
         schedule = schedule.withSingleUse(singleUse);
         this.saveSchedule(source, schedule);
         if (singleUse) {
-            source.sendMessage(I18n.trans("module-commandscheduler-single-use-set", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-single-use-set", schedule.name()));
         } else {
-            source.sendMessage(I18n.trans("module-commandscheduler-single-use-unset", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-single-use-unset", schedule.name()));
         }
     }
 
@@ -185,9 +188,9 @@ public class CommandSchedulerCommand {
         schedule = schedule.withEnabled(enabled);
         this.saveSchedule(source, schedule);
         if (enabled) {
-            source.sendMessage(I18n.trans("module-commandscheduler-enabled", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-enabled", schedule.name()));
         } else {
-            source.sendMessage(I18n.trans("module-commandscheduler-disabled", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-disabled", schedule.name()));
         }
     }
 
@@ -200,7 +203,7 @@ public class CommandSchedulerCommand {
         var commands = schedule.commands();
         commands.add(command);
         this.saveSchedule(source, schedule.withCommands(commands));
-        source.sendMessage(I18n.trans("module-commandscheduler-command-added", command, schedule.name()));
+        source.sendMessage(this.i18n.translate("module-commandscheduler-command-added", command, schedule.name()));
     }
 
     @Command("scheduler command <schedule> insert <index> <command>")
@@ -212,7 +215,7 @@ public class CommandSchedulerCommand {
     ) {
         var commands = schedule.commands();
         if (index < 0) {
-            source.sendMessage(I18n.trans("module-commandscheduler-index-negative-error"));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-index-negative-error"));
             return;
         }
         if (index <= commands.size()) {
@@ -221,7 +224,7 @@ public class CommandSchedulerCommand {
             commands.add(command);
         }
         this.saveSchedule(source, schedule.withCommands(commands));
-        source.sendMessage(I18n.trans("module-commandscheduler-command-inserted", command, index, schedule.name()));
+        source.sendMessage(this.i18n.translate("module-commandscheduler-command-inserted", command, index, schedule.name()));
     }
 
     @Command("scheduler command <schedule> remove <command>")
@@ -235,30 +238,30 @@ public class CommandSchedulerCommand {
         if (command.primary().isPresent()) {
             int index = command.primary().get();
             if (index < 0 || index >= commands.size()) {
-                source.sendMessage(I18n.trans("module-commandscheduler-index-out-of-bounds-error", index, schedule.name(), commands.size()));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-index-out-of-bounds-error", index, schedule.name(), commands.size()));
                 return;
             }
             removed = commands.remove(index);
             if (removed == null) {
-                source.sendMessage(I18n.trans("module-commandscheduler-command-remove-index-error", index, schedule.name()));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-command-remove-index-error", index, schedule.name()));
                 return;
             } else {
-                source.sendMessage(I18n.trans("module-commandscheduler-command-removed-index", removed, index, schedule.name()));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-command-removed-index", removed, index, schedule.name()));
             }
         } else if (command.fallback().isPresent()) {
             final String commandString = command.fallback().get();
             if (!commands.remove(commandString)) {
-                source.sendMessage(I18n.trans("module-commandscheduler-command-remove-error", commandString, schedule.name()));
+                source.sendMessage(this.i18n.translate("module-commandscheduler-command-remove-error", commandString, schedule.name()));
                 return;
             }
             removed = commandString;
         } else {
-            source.sendMessage(I18n.trans("module-commandscheduler-parameter-error"));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-parameter-error"));
             return;
         }
 
         this.saveSchedule(source, schedule.withCommands(commands));
-        source.sendMessage(I18n.trans("module-commandscheduler-command-removed", removed, schedule.name()));
+        source.sendMessage(this.i18n.translate("module-commandscheduler-command-removed", removed, schedule.name()));
     }
 
 
@@ -271,9 +274,9 @@ public class CommandSchedulerCommand {
         if (this.module.getDatabase().delete(schedule.name())) {
             schedule = schedule.withName(newName);
             this.saveSchedule(source, schedule);
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-renamed", oldName, newName));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-renamed", oldName, newName));
         } else {
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-rename-error", oldName));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-rename-error", oldName));
         }
     }
 
@@ -283,24 +286,24 @@ public class CommandSchedulerCommand {
             @Argument(value = "schedule", parserName = "schedule") Schedule schedule
     ) {
         if (this.module.getDatabase().delete(schedule.name())) {
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-deleted", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-deleted", schedule.name()));
         } else {
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-delete-error", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-delete-error", schedule.name()));
         }
     }
 
     private void saveSchedule(@NotNull CommandSource source, Schedule schedule) {
         if (this.module.getDatabase().insert(schedule.name(), Document.newJsonDocument().appendTree(schedule))) {
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-saved", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-saved", schedule.name()));
         } else {
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-save-error", schedule.name()));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-save-error", schedule.name()));
         }
     }
 
     private @Nullable Schedule loadSchedule(@NotNull CommandSource source, String scheduleName) {
         var document = this.module.getDatabase().get(scheduleName);
         if (document == null) {
-            source.sendMessage(I18n.trans("module-commandscheduler-schedule-not-found", scheduleName));
+            source.sendMessage(this.i18n.translate("module-commandscheduler-schedule-not-found", scheduleName));
             return null;
         }
 

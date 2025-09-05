@@ -1,24 +1,31 @@
 package com.github.moincraft.cloudnet.module.commandscheduler;
 
 import com.github.moincraft.cloudnet.module.commandscheduler.data.Schedule;
-import com.google.common.reflect.TypeToken;
-import eu.cloudnetservice.common.language.I18n;
 import eu.cloudnetservice.driver.database.Database;
 import eu.cloudnetservice.driver.database.DatabaseProvider;
 import eu.cloudnetservice.driver.document.Document;
+import eu.cloudnetservice.driver.language.I18n;
+import eu.cloudnetservice.driver.language.PropertiesTranslationProvider;
 import eu.cloudnetservice.driver.module.ModuleLifeCycle;
 import eu.cloudnetservice.driver.module.ModuleTask;
 import eu.cloudnetservice.driver.module.driver.DriverModule;
 import eu.cloudnetservice.node.cluster.NodeServerProvider;
 import eu.cloudnetservice.node.command.CommandProvider;
-import eu.cloudnetservice.node.command.source.ConsoleCommandSource;
+import eu.cloudnetservice.node.command.source.CommandSource;
+import eu.cloudnetservice.utils.base.io.FileUtil;
+import eu.cloudnetservice.utils.base.resource.ResourceResolver;
+import io.leangen.geantyref.TypeToken;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,7 +47,30 @@ public class CommandSchedulerModule extends DriverModule {
                            @NotNull @Named("taskScheduler") ScheduledExecutorService executor,
                            @NotNull CommandProvider commandProvider,
                            @NotNull NodeServerProvider nodeServerProvider) {
-        I18n.loadFromLangPath(CommandSchedulerModule.class);
+
+
+        var resourcePath = Path.of(ResourceResolver.resolveCodeSourceOfClass(CommandSchedulerModule.class));
+        // Load languages; copied from CloudNet
+        //noinspection UnstableApiUsage
+        FileUtil.openZipFile(resourcePath, fs -> {
+            // get the language directory
+            var langDir = fs.getPath("lang/");
+            if (Files.notExists(langDir) || !Files.isDirectory(langDir)) {
+                throw new IllegalStateException("lang/ must be an existing directory inside the jar to load");
+            }
+            // visit each file and register it as a language source
+            //noinspection UnstableApiUsage
+            FileUtil.walkFileTree(langDir, (_, sub) -> {
+                // try to load and register the language file
+                try (var stream = Files.newInputStream(sub)) {
+                    var lang = sub.getFileName().toString().replace(".properties", "");
+                    I18n.i18n().registerProvider(Locale.forLanguageTag(lang), PropertiesTranslationProvider.fromProperties(stream));
+                } catch (IOException e) {
+                    CommandSource.console().sendMessage("Failed to load language file " + sub.getFileName());
+                }
+            }, false, "*.properties");
+        });
+
         this.databaseProvider = databaseProvider;
         this.executor = executor;
         this.commandProvider = commandProvider;
@@ -64,7 +94,7 @@ public class CommandSchedulerModule extends DriverModule {
         if (database.entries().isEmpty()) {
             return;
         }
-        ConsoleCommandSource.INSTANCE.sendMessage("Migrating schedules to new format");
+        CommandSource.console().sendMessage("Migrating schedules to new format");
         database.entries().forEach((key, document) -> {
             if (document.contains("script") && document.readDocument("script").contains("commands")) {
                 List<String> commands = document.readDocument("script").readObject("commands", new TypeToken<List<String>>() {
@@ -106,8 +136,8 @@ public class CommandSchedulerModule extends DriverModule {
             // run the script
             for (String command : schedule.commands()) {
                 try {
-                    ConsoleCommandSource.INSTANCE.sendMessage(I18n.trans("module-commandscheduler-executing-command", command));
-                    this.commandProvider.execute(ConsoleCommandSource.INSTANCE, command).get();
+                    CommandSource.console().sendMessage(I18n.i18n().translate("module-commandscheduler-executing-command", command));
+                    this.commandProvider.execute(CommandSource.console(), command).get();
                 } catch (InterruptedException | ExecutionException e) {
                     break;
                 }

@@ -4,9 +4,9 @@ import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
+import org.jetbrains.annotations.Nullable;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;

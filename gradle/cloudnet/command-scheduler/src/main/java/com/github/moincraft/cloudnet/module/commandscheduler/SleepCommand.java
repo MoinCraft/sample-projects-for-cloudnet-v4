@@ -1,6 +1,6 @@
 package com.github.moincraft.cloudnet.module.commandscheduler;
 
-import eu.cloudnetservice.common.language.I18n;
+import eu.cloudnetservice.driver.language.I18n;
 import eu.cloudnetservice.node.command.annotation.Description;
 import eu.cloudnetservice.node.command.source.CommandSource;
 import jakarta.inject.Singleton;
@@ -20,7 +20,7 @@ public class SleepCommand {
         try {
             Thread.sleep(duration);
         } catch (InterruptedException e) {
-            source.sendMessage(I18n.trans("module-commandscheduler-sleep-interrupted"));
+            source.sendMessage(I18n.i18n().translate("module-commandscheduler-sleep-interrupted"));
         }
     }
 }

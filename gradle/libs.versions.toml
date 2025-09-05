@@ -4,7 +4,7 @@ juppiter = "0.4.0"
 shadow = "9.1.0"
 
 spigot = "1.21.8-R0.1-SNAPSHOT"
-bungeecord = "1.21-R0.1-SNAPSHOT"
+bungeecord = "1.21-R0.3"
 
 slf4j = "2.0.17"
 junit = "5.13.4"

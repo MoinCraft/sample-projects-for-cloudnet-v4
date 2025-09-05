@@ -42,18 +42,18 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>1.21-R0.1-SNAPSHOT</version>
+            <version>1.21-R0.3</version>
             <scope>provided</scope>
         </dependency>
         <!-- CloudNet v4 -->
         <dependency>
             <groupId>eu.cloudnetservice.cloudnet</groupId>
-            <artifactId>bridge</artifactId>
+            <artifactId>bridge-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.cloudnetservice.cloudnet</groupId>
-            <artifactId>wrapper-jvm</artifactId>
+            <artifactId>wrapper-jvm-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

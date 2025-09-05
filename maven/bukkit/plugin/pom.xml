@@ -47,12 +47,12 @@
         <!-- CloudNet v4 -->
         <dependency>
             <groupId>eu.cloudnetservice.cloudnet</groupId>
-            <artifactId>bridge</artifactId>
+            <artifactId>bridge-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.cloudnetservice.cloudnet</groupId>
-            <artifactId>wrapper-jvm</artifactId>
+            <artifactId>wrapper-jvm-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
